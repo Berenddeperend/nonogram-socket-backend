@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+  nonogram-socket-backend:
+    build: .
+    image: nonogram-socket-backend
+    container_name: "nonogram-socket-backend"
+    restart: always
+    environment:
+      BEREND: yep
+    ports:
+      - "7100:7100"
+    command: >
+      bash -c "npm run run-live"
+    networks:
+      - 'caddy'
+networks:
+  caddy:
+    name: caddy
