@@ -1,7 +1,6 @@
 import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
-import { xor } from 'lodash';
 import cors from 'cors';
 
 const app = express();
@@ -10,9 +9,8 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    // origin: 'http://localhost:3000',
-    origin: ['http://192.168.2.73:3000', 'http://192.168.2.5:3000'],
-
+    origin: 'http://localhost:3000',
+    // origin: ['http://192.168.2.73:3000', 'http://192.168.2.5:3000'],
     methods: ['GET', 'POST']
   }
 });
@@ -23,17 +21,26 @@ import SampleLevel from './sample-level.json';
 
 const colors = ['yellow', 'green', 'blue'];
 
+const solution: Grid = SampleLevel;
+
+let grid = createGrid(10);
+
+function createGrid(size: number): Grid {
+  const grid = new Array(size).fill('').map((d) => new Array(size).fill(' '));
+  return grid;
+}
 
 interface Player {
   id: string;
   position: [number, number]
-  // color: Colors
   color: string,
   name: string
 }
+type Players = {
+  [id: string]: Player
+}
 
-let players: { [id: string]: Player } = {};
-let grid = [];
+let players: Players = {};
 
 io.on('connection', (socket) => {
   players[socket.id] = {
@@ -42,18 +49,24 @@ io.on('connection', (socket) => {
     color: colors[Object.entries(players).length % colors.length],
     name: 'Berend'
   };
+
   console.log('a user connected', players);
 
-  socket.on('cursorPosition', (pos) => {
-    console.log('cursorpos changed', pos);
-    io.emit('cursorPositions', pos);
+  socket.emit('initPlayer', {id: socket.id})
+  socket.emit('playersStateUpdated', players);
+  socket.emit('solution', solution);
+  socket.emit('grid', grid);
+
+  socket.on('cursorPositionChanged', (pos) => {
+    players[socket.id].position = pos;
+    io.emit('playersStateUpdated', players);
   });
 
-  socket.on('userStateChanged', (state) => {
-    console.log('userStateChanged', state);
-    // io.emit('cursorPositions', pos)
-    io.emit('state', state);
+  socket.on('gridUpdated', (newGrid: Grid) => {
+    grid = newGrid;
+    io.emit('gridUpdated', grid);
   });
+
 
   socket.on('disconnect', () => {
     // players = xor(players, [socket.id])]
@@ -63,7 +76,7 @@ io.on('connection', (socket) => {
 });
 
 
-server.listen(7000, () => {
+server.listen(4000, () => {
   console.log('listening on *:4000');
 });
 
