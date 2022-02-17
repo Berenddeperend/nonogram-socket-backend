@@ -9,7 +9,9 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: (origin, cb)=> {
+      cb(null, true)
+    },
     methods: ['GET', 'POST']
   }
 });
@@ -25,8 +27,7 @@ const solution: Grid = SampleLevel;
 let grid = createGrid(10);
 
 function createGrid(size: number): Grid {
-  const grid = new Array(size).fill('').map((d) => new Array(size).fill(' '));
-  return grid;
+  return new Array(size).fill('').map(() => new Array(size).fill(' '));
 }
 
 interface Player {
