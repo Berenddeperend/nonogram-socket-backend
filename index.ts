@@ -2,20 +2,19 @@ import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
+import * as faker from 'faker';
 
 const app = express();
 app.use(cors);
 const server = http.createServer(app);
 
+console.log('yoink!')
+
 const io = new Server(server, {
   cors: {
-    origin: (origin, cb)=> {
-      cb(null, true)
-    },
-    methods: ['GET', 'POST']
+    origin: '*',
   }
 });
-
 
 type Grid = string[][];
 import SampleLevel from './sample-level.json';
@@ -47,17 +46,18 @@ io.on('connection', (socket) => {
     id: socket.id,
     position: [0, 0],
     color: colors[Object.entries(players).length % colors.length],
-    name: 'Berend'
+    name: faker.name.findName()
   };
 
   console.log('a user connected', players);
 
   socket.emit('initPlayer', {id: socket.id})
-  socket.emit('playersStateUpdated', players);
+  io.emit('playersStateUpdated', players);
   socket.emit('solution', solution);
-  socket.emit('grid', grid);
+  socket.emit('gridUpdated', grid);
 
   socket.on('cursorPositionChanged', (pos) => {
+    console.log("-> pos", pos);
     players[socket.id].position = pos;
     io.emit('playersStateUpdated', players);
   });
@@ -71,6 +71,7 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     // players = xor(players, [socket.id])]
     delete players[socket.id];
+    io.emit('playersStateUpdated', players);
     console.log('they disconnected', players);
   });
 });
