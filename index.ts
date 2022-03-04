@@ -3,6 +3,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import * as faker from 'faker';
+import { isEqual } from 'lodash';
 
 const app = express();
 app.use(cors);
@@ -66,6 +67,15 @@ io.on('connection', (socket) => {
   socket.on('gridUpdated', (newGrid: Grid) => {
     grid = newGrid;
     io.emit('gridUpdated', grid);
+
+    const cleared = isEqual(grid, solution)
+
+    if(cleared) {
+      setTimeout(()=> {
+        io.emit('solution', solution)
+        io.emit('gridUpdated', createGrid(10))
+      }, 2000)
+    }
   });
 
 
