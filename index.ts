@@ -46,7 +46,8 @@ io.on('connection', (socket) => {
     id: socket.id,
     position: [0, 0],
     color: colors[Object.entries(players).length % colors.length],
-    name: faker.name.findName()
+    // name: faker.name.findName()
+    name: faker.animal.bird()
   };
 
   console.log('a user connected', players);
