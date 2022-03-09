@@ -21,7 +21,6 @@ type Grid = string[][];
 import SampleLevel from './sample-level.json';
 
 const colors = ['yellow', 'green', 'blue'];
-
 const solution: Grid = SampleLevel;
 
 let grid = createGrid(10);
@@ -47,23 +46,20 @@ io.on('connection', (socket) => {
     id: socket.id,
     position: [0, 0],
     color: colors[Object.entries(players).length % colors.length],
-    // name: faker.name.findName()
     name: faker.animal.bird()
   };
 
-  console.log('a user connected', players);
 
   io.emit('playersStateUpdated', players);
 
-
-  // socket.on('startGame', ()=> {
+  socket.on('startGame', ()=> {
+    socket.emit('playersStateUpdated', players);
     socket.emit('initPlayer', {id: socket.id})
     socket.emit('solution', solution);
     socket.emit('gridUpdated', grid);
-  // })
+  })
 
   socket.on('cursorPositionChanged', (pos) => {
-    console.log("-> pos", pos);
     players[socket.id].position = pos;
     io.emit('playersStateUpdated', players);
   });
