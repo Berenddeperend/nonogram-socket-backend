@@ -53,10 +53,14 @@ io.on('connection', (socket) => {
 
   console.log('a user connected', players);
 
-  socket.emit('initPlayer', {id: socket.id})
   io.emit('playersStateUpdated', players);
-  socket.emit('solution', solution);
-  socket.emit('gridUpdated', grid);
+
+
+  // socket.on('startGame', ()=> {
+    socket.emit('initPlayer', {id: socket.id})
+    socket.emit('solution', solution);
+    socket.emit('gridUpdated', grid);
+  // })
 
   socket.on('cursorPositionChanged', (pos) => {
     console.log("-> pos", pos);
@@ -70,12 +74,12 @@ io.on('connection', (socket) => {
 
     const cleared = isEqual(grid, solution)
 
-    if(cleared) {
-      setTimeout(()=> {
-        io.emit('solution', solution)
-        io.emit('gridUpdated', createGrid(10))
-      }, 2000)
-    }
+    // if(cleared) {
+    //   setTimeout(()=> {
+    //     io.emit('solution', solution)
+    //     io.emit('gridUpdated', createGrid(10))
+    //   }, 5000)
+    // }
   });
 
 
