@@ -11,6 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^3.11.1",
+    "body-parser": "^1.19.2",
     "cors": "^2.8.5",
     "express": "^4.17.2",
     "faker": "^5.5.3",
@@ -25,6 +27,7 @@
     "@types/faker": "^5.5.9",
     "@types/lodash": "^4.14.178",
     "@types/socket.io": "^3.0.2",
+    "prisma": "^3.11.1",
     "ts-node-dev": "^1.1.8"
   }
 }

@@ -4,24 +4,70 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import * as faker from 'faker';
 import { isEqual } from 'lodash';
+import { getPuzzleById, createPuzzle, createUser, getUserByName, getPuzzleByUserIdAndContent, getPuzzleByUserName } from './db';
+import bodyParser from 'body-parser';
+
+import SampleLevel from './sample-level.json';
+import { Puzzle } from '@prisma/client';
+
 
 const app = express();
-app.use(cors);
+app.use(cors()); 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded());
+// in latest body-parser use like below.
+app.use(bodyParser.urlencoded({ extended: true }));
+
+
 const server = http.createServer(app);
 
-console.log('yoink!')
+app.get('/puzzle/:id', async (req, res) => {
+  console.log(req)
+  const puzzle = await getPuzzleById(Number(req.params.id));
+  res.json(puzzle);
+})
 
-const io = new Server(server, {
-  cors: {
-    origin: '*',
-  }
+app.get('/users/:id/puzzles', async (req, res) => {
+  const authorName = req.params.id;
+  const puzzles = await getPuzzleByUserName( authorName )
+
+  if(!puzzles) return res.sendStatus(500);
+  res.json(puzzles)
 });
 
+
+app.post('/puzzle', async(req, res) => {
+  const {name, puzzle, authorName} = req.body;
+
+  const user = await getUserByName(authorName) || await createUser(authorName);
+
+  const isDuplicate = await getPuzzleByUserIdAndContent(user.id, puzzle);
+  if(isDuplicate) return res.sendStatus(409);
+
+
+  const newPuzzle = await createPuzzle({
+    name,
+    puzzle,
+    authorId: user.id,
+  })
+
+  res.send(newPuzzle)
+});
+
+
+const io = new Server(server, 
+//   {
+//   cors: {
+//     origin: '*',
+//   }
+// }
+);
+
 type Grid = string[][];
-import SampleLevel from './sample-level.json';
 
 const colors = ['yellow', 'green', 'blue'];
 const solution: Grid = SampleLevel;
+
 
 let grid = createGrid(10);
 
@@ -92,3 +138,4 @@ server.listen(7100, () => { //port is chosen arbitrarily
   console.log('listening on *:7100');
 });
 
+app.listen(7200);
