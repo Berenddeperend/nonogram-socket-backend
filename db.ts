@@ -10,6 +10,15 @@ export async function getPuzzleById(puzzleId: number) {
 	})
 }
 
+export async function getRandomPuzzle() {
+	const puzzleCount = await prisma.puzzle.count();
+	const rand = Math.floor(Math.random() * puzzleCount);
+	return prisma.puzzle.findMany({
+		take: 1,
+		skip: rand
+	})
+}
+
 // export async function getUserById(userId: number) {
 // 	return prisma.user.findUnique({
 // 		where: {id: userId}
@@ -28,6 +37,8 @@ export async function getPuzzleByUserName(author: string) {
 }
 
 export async function getPuzzleByUserIdAndContent(authorId: number, puzzle: string) {
+	console.log(authorId, puzzle)
+
 	return prisma.puzzle.findUnique({
 		where: {
 			authorId_puzzle: {
@@ -62,4 +73,8 @@ export async function createPuzzle(puzzle: {name: string, puzzle: string, author
 			puzzle: puzzle.puzzle
 		}
 	})
+}
+
+export async function updatePuzzle() {
+
 }

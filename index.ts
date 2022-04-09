@@ -4,11 +4,18 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import * as faker from 'faker';
 import { isEqual } from 'lodash';
-import { getPuzzleById, createPuzzle, createUser, getUserByName, getPuzzleByUserIdAndContent, getPuzzleByUserName } from './db';
+import {
+  getPuzzleById,
+  createPuzzle,
+  createUser,
+  getUserByName,
+  getPuzzleByUserIdAndContent,
+  getPuzzleByUserName,
+  getRandomPuzzle
+} from './db';
 import bodyParser from 'body-parser';
 
 import SampleLevel from './sample-level.json';
-import { Puzzle } from '@prisma/client';
 
 
 const app = express();
@@ -27,8 +34,8 @@ app.get('/puzzle/:id', async (req, res) => {
   res.json(puzzle);
 })
 
-app.get('/users/:id/puzzles', async (req, res) => {
-  const authorName = req.params.id;
+app.get('/users/:name/puzzles', async (req, res) => {
+  const authorName = req.params.name;
   const puzzles = await getPuzzleByUserName( authorName )
 
   if(!puzzles) return res.sendStatus(500);
@@ -68,12 +75,13 @@ type Grid = string[][];
 const colors = ['yellow', 'green', 'blue'];
 const solution: Grid = SampleLevel;
 
-
 let grid = createGrid(10);
 
 function createGrid(size: number): Grid {
   return new Array(size).fill('').map(() => new Array(size).fill(' '));
 }
+
+// getRandomPuzzle()
 
 interface Player {
   id: string;
@@ -98,10 +106,10 @@ io.on('connection', (socket) => {
 
   io.emit('playersStateUpdated', players);
 
-  socket.on('startGame', ()=> {
+  socket.on('startGame', async ()=> {
     socket.emit('playersStateUpdated', players);
     socket.emit('initPlayer', {id: socket.id})
-    socket.emit('solution', solution);
+    socket.emit('solution', await getRandomPuzzle());
     socket.emit('gridUpdated', grid);
   })
 
