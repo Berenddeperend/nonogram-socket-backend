@@ -13,10 +13,11 @@ export async function getPuzzleById(puzzleId: number) {
 export async function getRandomPuzzle() {
 	const puzzleCount = await prisma.puzzle.count();
 	const rand = Math.floor(Math.random() * puzzleCount);
-	return prisma.puzzle.findMany({
+	const puzzle = await prisma.puzzle.findMany({
 		take: 1,
 		skip: rand
 	})
+	return puzzle[0]
 }
 
 // export async function getUserById(userId: number) {
@@ -25,7 +26,7 @@ export async function getRandomPuzzle() {
 // 	})
 // }
 
-export async function getPuzzleByUserName(author: string) {
+export async function getPuzzlesByUserName(author: string) {
 	const user = await getUserByName(author);
 	if(!user) return false;
 
