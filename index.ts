@@ -31,7 +31,6 @@ const io = new Server(server,
 // }
 );
 
-type Grid = string[][];
 
 const colors = ['yellow', 'green', 'blue'];
 let solution: Puzzle;
@@ -44,24 +43,7 @@ function createGrid(size: number): Grid {
 
 // getRandomPuzzle()
 
-interface Player {
-  id: string;
-  position: [number, number]
-  color: string,
-  name: string
-}
-type Players = {
-  [id: string]: Player
-}
 
-async function startGame() {
-  io.emit('playersStateUpdated', players);
-  // io.emit('initPlayer', {id: socket.id})
-  io.emit('gridUpdated', grid);
-  // io.emit('solution', await getRandomPuzzle());
-  io.emit('solution', await getPuzzleById(20));
-  solution = await getPuzzleById(20) as Puzzle;
-}
 
 let players: Players = {};
 
@@ -73,27 +55,22 @@ io.on('connection', (socket) => {
     name: faker.animal.bird()
   };
 
+  socket.on('disconnect', onLeave);
+  socket.on('leave', onLeave);
+  socket.on('gridUpdated', onGridUpdated);
+  socket.on('cursorPositionChanged', onCursorPositionChanged);
 
+  socket.emit('playerCreated', {id: socket.id})
+  socket.emit('gridUpdated', grid);
+  socket.emit('gameCreated', solution);
   io.emit('playersStateUpdated', players);
-  socket.emit('initPlayer', {id: socket.id})
 
-  socket.on('startGame', () => {
-    startGame();
-  });
-
-  // socket.on('startGame', async ()=> {
-  //   socket.emit('playersStateUpdated', players);
-  //   socket.emit('initPlayer', {id: socket.id})
-  //   socket.emit('solution', await getRandomPuzzle());
-  //   socket.emit('gridUpdated', grid);
-  // })
-
-  socket.on('cursorPositionChanged', (pos) => {
-    players[socket.id].position = pos;
+  function onCursorPositionChanged(position: Position) {
+    players[socket.id].position = position;
     io.emit('playersStateUpdated', players);
-  });
+  }
 
-  socket.on('gridUpdated', (newGrid: Grid) => {
+  function onGridUpdated(newGrid: Grid) {
     grid = newGrid;
     io.emit('gridUpdated', grid);
 
@@ -101,19 +78,18 @@ io.on('connection', (socket) => {
 
     if(cleared) {
       setTimeout(async ()=> {
-        io.emit('solution', await getPuzzleById(20))
+        io.emit('gameCreated', await getPuzzleById(20))
         io.emit('gridUpdated', createGrid(10))
       }, 5000)
     }
-  });
+  }
+
+  function onLeave() {
+     delete players[socket.id];
+     io.emit('playersStateUpdated', players);
+  }
 
 
-  socket.on('disconnect', () => {
-    // players = xor(players, [socket.id])]
-    delete players[socket.id];
-    io.emit('playersStateUpdated', players);
-    console.log('they disconnected', players);
-  });
 });
 
 
