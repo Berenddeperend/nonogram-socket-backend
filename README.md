@@ -15,7 +15,7 @@ https://www.npmjs.com/package/type-fest
     - playerID
 - gameCreated
   - sends:
-    - solution
+    - puzzle
 - playerStatesUpdated
   - when:
     - player joined

@@ -1,3 +1,24 @@
+interface Player {
+  id: string;
+  position: Position;
+  color: string;
+  name: string;
+}
+
+type Players = {
+  [id: string]: Player;
+};
+
+type Grid = string[][];
+type Position = [number, number];
+
+
+
+
+
+
+
+
 import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
@@ -33,7 +54,10 @@ const io = new Server(server,
 
 
 const colors = ['yellow', 'green', 'blue'];
+
+// let solution: Puzzle = await getPuzzleById(20) as Puzzle;
 let solution: Puzzle;
+getPuzzleById(20).then((puzzle) => solution = puzzle as Puzzle);
 
 let grid = createGrid(10);
 
@@ -47,7 +71,7 @@ function createGrid(size: number): Grid {
 
 let players: Players = {};
 
-io.on('connection', (socket) => {
+io.on('connection', (socket:any) => {
   players[socket.id] = {
     id: socket.id,
     position: [0, 0],
@@ -59,11 +83,15 @@ io.on('connection', (socket) => {
   socket.on('leave', onLeave);
   socket.on('gridUpdated', onGridUpdated);
   socket.on('cursorPositionChanged', onCursorPositionChanged);
+  socket.on("join", onJoin);
 
-  socket.emit('playerCreated', {id: socket.id})
-  socket.emit('gridUpdated', grid);
-  socket.emit('gameCreated', solution);
-  io.emit('playersStateUpdated', players);
+  function onJoin() {
+    console.log('joined')
+    socket.emit('playerCreated', {id: socket.id})
+    socket.emit('gridUpdated', grid);
+    socket.emit('gameCreated', solution);
+    io.emit('playersStateUpdated', players);
+  }
 
   function onCursorPositionChanged(position: Position) {
     players[socket.id].position = position;
