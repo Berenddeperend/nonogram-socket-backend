@@ -8,6 +8,7 @@ https://www.npmjs.com/package/type-fest
 - cursorUpdated
 - gridUpdated
 - leave
+- suggestClear
 
 ###server sends:
 - playerCreated

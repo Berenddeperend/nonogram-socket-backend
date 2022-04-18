@@ -68,10 +68,12 @@ function createGrid(size: number): Grid {
 // getRandomPuzzle()
 
 
-
 let players: Players = {};
+console.log(players)
 
 io.on('connection', (socket:any) => {
+  console.log('connedcted')
+
   players[socket.id] = {
     id: socket.id,
     position: [0, 0],
@@ -84,6 +86,7 @@ io.on('connection', (socket:any) => {
   socket.on('gridUpdated', onGridUpdated);
   socket.on('cursorPositionChanged', onCursorPositionChanged);
   socket.on("join", onJoin);
+  socket.on("suggestClear", onSuggestClear);
 
   function onJoin() {
     console.log('joined')
@@ -106,17 +109,23 @@ io.on('connection', (socket:any) => {
 
     if(cleared) {
       setTimeout(async ()=> {
+        grid = createGrid(10);
         io.emit('gameCreated', await getPuzzleById(20))
-        io.emit('gridUpdated', createGrid(10))
+        io.emit('gridUpdated', grid)
       }, 5000)
     }
   }
 
   function onLeave() {
      delete players[socket.id];
+     console.log('player left', players)
      io.emit('playersStateUpdated', players);
   }
 
+  function onSuggestClear() {
+    grid = createGrid(10);
+    io.emit('gridUpdated', grid)
+  }
 
 });
 
