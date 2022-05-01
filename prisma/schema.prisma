@@ -15,12 +15,12 @@ model User {
 }
 
 model Puzzle {
-  id        Int      @id @default(autoincrement())
-  name      String
-  puzzle    String
-  authorId  Int
-  width     Int? @default(10)
-  height    Int? @default(10)
-  author     User       @relation(fields: [authorId], references: [id])
-  @@unique([authorId, puzzle])
+  id          Int      @id @default(autoincrement())
+  name        String
+  solution    String
+  authorId    Int
+  width       Int? @default(10)
+  height      Int? @default(10)
+  author      User       @relation(fields: [authorId], references: [id])
+  @@unique([authorId, solution])
 }

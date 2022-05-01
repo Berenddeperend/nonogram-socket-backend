@@ -27,7 +27,7 @@ import * as faker from 'faker';
 import { isEqual } from 'lodash';
 import { Puzzle } from "@prisma/client";
 import {
-  getPuzzleById,
+  getPuzzleById, getRandomPuzzle
 } from './db';
 import bodyParser from 'body-parser';
 import {initRest} from './rest';
@@ -57,7 +57,11 @@ const colors = ['yellow', 'green', 'blue'];
 
 // let solution: Puzzle = await getPuzzleById(20) as Puzzle;
 let solution: Puzzle;
-getPuzzleById(20).then((puzzle) => solution = puzzle as Puzzle);
+let solutionGrid: Grid;
+getPuzzleById(20).then((puzzle) => {
+  solution = puzzle as Puzzle
+  solutionGrid = JSON.parse((puzzle as Puzzle).puzzle);
+});
 
 let grid = createGrid(10);
 
@@ -105,12 +109,19 @@ io.on('connection', (socket:any) => {
     grid = newGrid;
     io.emit('gridUpdated', grid);
 
-    const cleared = isEqual(grid, solution)
+    const cleared = isEqual(grid, JSON.parse(solution.puzzle))
+    console.log("-> solution.puzzle", solution.puzzle);
+    console.log("-> grid", grid);
 
     if(cleared) {
+      console.log('cleared!')
       setTimeout(async ()=> {
         grid = createGrid(10);
-        io.emit('gameCreated', await getPuzzleById(20))
+        // solution = await getPuzzleById(20) as Puzzle;
+        solution = await getRandomPuzzle() as Puzzle;
+        solutionGrid = JSON.parse(solution.puzzle);
+
+        io.emit('gameCreated', solution)
         io.emit('gridUpdated', grid)
       }, 5000)
     }
