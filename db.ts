@@ -57,14 +57,14 @@ export async function getPuzzlesByUserName(author: string) {
 	})
 }
 
-export async function getPuzzleByUserIdAndContent(authorId: number, puzzle: string) {
-	console.log(authorId, puzzle)
+export async function getPuzzleByUserIdAndContent(authorId: number, solution: string) {
+	console.log(authorId, solution)
 
 	return prisma.puzzle.findUnique({
 		where: {
-			authorId_puzzle: {
+			authorId_solution: {
 				authorId,
-				puzzle
+				solution
 			}
 		}
 	})
@@ -86,12 +86,12 @@ export async function createUser(name: string) {
 }
 
 // export async function createPuzzle(puzzle: Puzzle) {
-export async function createPuzzle(puzzle: {name: string, puzzle: string, authorId: number}) {
+export async function createPuzzle(puzzle: {name: string, solution: string, authorId: number}) {
 	return prisma.puzzle.create({
 		data: {
 			name: puzzle.name,
 			authorId: Number(puzzle.authorId),
-			puzzle: puzzle.puzzle
+			solution: puzzle.solution
 		}
 	})
 }

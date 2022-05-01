@@ -43,17 +43,17 @@ export function initRest() {
 
 
   app.post('/puzzle', async(req, res) => {
-    const {name, puzzle, authorName} = req.body;
+    const {name, solution, authorName} = req.body;
 
     const user = await getUserByName(authorName) || await createUser(authorName);
 
-    const isDuplicate = await getPuzzleByUserIdAndContent(user.id, puzzle);
+    const isDuplicate = await getPuzzleByUserIdAndContent(user.id, solution);
     if(isDuplicate) return res.sendStatus(409);
 
 
     const newPuzzle = await createPuzzle({
       name,
-      puzzle,
+      solution,
       authorId: user.id,
     })
 

@@ -60,7 +60,7 @@ let solution: Puzzle;
 let solutionGrid: Grid;
 getPuzzleById(20).then((puzzle) => {
   solution = puzzle as Puzzle
-  solutionGrid = JSON.parse((puzzle as Puzzle).puzzle);
+  solutionGrid = JSON.parse((puzzle as Puzzle).solution);
 });
 
 let grid = createGrid(10);
@@ -109,8 +109,8 @@ io.on('connection', (socket:any) => {
     grid = newGrid;
     io.emit('gridUpdated', grid);
 
-    const cleared = isEqual(grid, JSON.parse(solution.puzzle))
-    console.log("-> solution.puzzle", solution.puzzle);
+    const cleared = isEqual(grid, JSON.parse(solution.solution))
+    console.log("-> solution.solution", solution.solution);
     console.log("-> grid", grid);
 
     if(cleared) {
@@ -119,7 +119,7 @@ io.on('connection', (socket:any) => {
         grid = createGrid(10);
         // solution = await getPuzzleById(20) as Puzzle;
         solution = await getRandomPuzzle() as Puzzle;
-        solutionGrid = JSON.parse(solution.puzzle);
+        solutionGrid = JSON.parse(solution.solution);
 
         io.emit('gameCreated', solution)
         io.emit('gridUpdated', grid)
