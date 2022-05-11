@@ -34,6 +34,7 @@ export function initRest() {
   })
 
   app.get('/users/:name/puzzles', async (req, res) => {
+    console.log('getting puzzls')
     const authorName = req.params.name;
     const puzzles = await getPuzzlesByUserName( authorName )
 

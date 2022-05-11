@@ -91,6 +91,7 @@ io.on('connection', (socket:any) => {
   socket.on('cursorPositionChanged', onCursorPositionChanged);
   socket.on("join", onJoin);
   socket.on("suggestClear", onSuggestClear);
+  socket.on("newRandomPuzzle", onNewRandomPuzzle);
 
   function onJoin() {
     console.log('joined')
@@ -98,6 +99,14 @@ io.on('connection', (socket:any) => {
     socket.emit('gridUpdated', grid);
     socket.emit('gameCreated', solution);
     io.emit('playersStateUpdated', players);
+  }
+
+  async function onNewRandomPuzzle() {
+    solution = await getRandomPuzzle() as Puzzle;
+    solutionGrid = JSON.parse(solution.solution);
+    grid = createGrid(10);
+    io.emit('gameCreated', solution)
+    io.emit('gridUpdated', grid)
   }
 
   function onCursorPositionChanged(position: Position) {

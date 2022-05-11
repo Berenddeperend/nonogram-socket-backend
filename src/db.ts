@@ -22,7 +22,7 @@ import { PrismaClient, Puzzle } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-import SampleLevel from "./sample-level-2.json";
+import SampleLevel from "../sample-level-2.json";
 
 export async function getPuzzleById(puzzleId: number) {
 	return prisma.puzzle.findUnique({

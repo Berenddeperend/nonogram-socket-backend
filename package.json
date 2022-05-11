@@ -2,11 +2,11 @@
   "name": "nonogram-backend-node",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
+  "main": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "serve": "nodemon",
-    "run-live": "ts-node index.ts"
+    "run-live": "ts-node src/index.ts"
   },
   "author": "",
   "license": "ISC",
