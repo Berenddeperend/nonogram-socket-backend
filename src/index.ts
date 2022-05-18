@@ -88,13 +88,14 @@ io.on('connection', (socket:any) => {
   socket.on('disconnect', onLeave);
   socket.on('leave', onLeave);
   socket.on('gridUpdated', onGridUpdated);
-  socket.on('cursorPositionChanged', onCursorPositionChanged);
+  socket.on('cursorUpdated', onCursorUpdated);
   socket.on("join", onJoin);
   socket.on("suggestClear", onSuggestClear);
-  socket.on("newRandomPuzzle", onNewRandomPuzzle);
+  socket.on("suggestNext", onNewRandomPuzzle);
 
-  function onJoin() {
+  function onJoin(nickName: string) {
     console.log('joined')
+    players[socket.id].name = nickName;
     socket.emit('playerCreated', {id: socket.id})
     socket.emit('gridUpdated', grid);
     socket.emit('gameCreated', solution);
@@ -109,7 +110,7 @@ io.on('connection', (socket:any) => {
     io.emit('gridUpdated', grid)
   }
 
-  function onCursorPositionChanged(position: Position) {
+  function onCursorUpdated(position: Position) {
     players[socket.id].position = position;
     io.emit('playersStateUpdated', players);
   }
