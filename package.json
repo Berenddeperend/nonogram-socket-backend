@@ -12,11 +12,13 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^3.11.1",
+    "@types/nonogram-solver": "^2.0.2",
     "body-parser": "^1.19.2",
     "cors": "^2.8.5",
     "express": "^4.17.2",
     "faker": "^5.5.3",
     "lodash": "^4.17.21",
+    "nonogram-solver": "^2.0.0",
     "socket.io": "^4.4.1",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.4"

@@ -26,6 +26,13 @@ import {
   getUserByName
 } from './db';
 
+const solve = require('nonogram-solver');
+const Puzzle = require('nonogram-solver/src/Puzzle');
+const Strategy = require('nonogram-solver/src/Strategy');
+const pushSolver = require('nonogram-solver/src/solvers/pushSolver');
+const bruteForceSolver = require('nonogram-solver/src/solvers/bruteForceSolver');
+
+
 export function initRest() {
   app.get('/puzzle/:id', async (req, res) => {
     console.log(req)
@@ -42,6 +49,21 @@ export function initRest() {
     res.json(puzzles)
   });
 
+  app.post('/validate-puzzle', async(req, res) => {
+    const {legendData} = req.body;
+    let puzzle = new Puzzle(legendData);
+    let strategy = new Strategy([pushSolver.solve]);
+    strategy.solve(puzzle, false);
+
+    let status = 0;
+    if (puzzle.isFinished) {
+      status = puzzle.isSolved ? 1 : -1;
+    }
+
+    console.log(status, puzzle.toJSON())
+
+    res.json(status)
+  });
 
   app.post('/puzzle', async(req, res) => {
     const {name, solution, authorName} = req.body;
