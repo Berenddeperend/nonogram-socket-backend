@@ -15,6 +15,6 @@ RUN npm install
 # Bundle app source
 COPY . .
 
-EXPOSE 7100
+RUN npx prisma generate
 
-# CMD ["npm", "run", "serve"]
+EXPOSE 7100
