@@ -58,10 +58,13 @@ const colors = ['yellow', 'green', 'blue'];
 // let solution: Puzzle = await getPuzzleById(20) as Puzzle;
 let solution: Puzzle;
 let solutionGrid: Grid;
-getPuzzleById(20).then((puzzle) => {
+
+getRandomPuzzle().then((puzzle) => {
   solution = puzzle as Puzzle
   solutionGrid = JSON.parse((puzzle as Puzzle).solution);
 });
+
+
 
 let grid = createGrid(10);
 
@@ -69,7 +72,7 @@ function createGrid(size: number): Grid {
   return new Array(size).fill('').map(() => new Array(size).fill(' '));
 }
 
-// getRandomPuzzle()
+getRandomPuzzle()
 
 
 let players: Players = {};
