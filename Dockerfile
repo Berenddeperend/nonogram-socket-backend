@@ -17,6 +17,6 @@ COPY . .
 
 RUN npx prisma generate
 
-RUN npm run-live
+RUN npm run run-live
 
 EXPOSE 7100
