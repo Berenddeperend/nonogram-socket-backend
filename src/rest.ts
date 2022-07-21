@@ -83,5 +83,8 @@ export function initRest() {
     res.send(newPuzzle)
   });
 
+  app.get('/ping', async(req, res) => {
+    res.json('pong');
+  });
 }
 
