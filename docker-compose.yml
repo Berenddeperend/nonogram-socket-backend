@@ -6,7 +6,6 @@ services:
     image: nonogram-backend
     container_name: "nonogram-backend"
     restart: always
-    platform: "linux/amd64"
     environment:
       BEREND: yep
       DATABASE_URL: file:./test.db

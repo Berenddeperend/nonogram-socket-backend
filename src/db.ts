@@ -1,9 +1,9 @@
 import { PuzzleModel as PuzzleModelType, Puzzle, User } from "./definitions";
 
-const { Sequelize, DataTypes } = require("sequelize");
 import { Puzzle as PuzzleModel, User as UserModel, sequelize } from "./model";
 
 function parseDatabasePuzzle(dbPuzzle: PuzzleModelType): Puzzle {
+  if (!dbPuzzle) throw new Error("geen puzzel opgegeven");
   return {
     ...dbPuzzle,
     solution: JSON.parse(dbPuzzle.solution),
