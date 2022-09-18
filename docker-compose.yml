@@ -2,7 +2,6 @@ version: "3.9"
 
 services:
   nonogram-socket-backend:
-    build: .
     image: nonogram-backend
     container_name: "nonogram-backend"
     restart: always
@@ -16,6 +15,8 @@ services:
       bash -c "npm run run-live"
     networks:
       - 'caddy'
+    volumes:
+      - ./db:/usr/src/app/db
 
 networks:
   caddy:
