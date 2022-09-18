@@ -16,6 +16,7 @@ import { app } from "./index";
 import {
   createPuzzle,
   createUser,
+  getPuzzleByContentAndAuthorName,
   getPuzzleById,
   getPuzzleByUserIdAndContent,
   getPuzzlesByUserName,
@@ -62,24 +63,15 @@ export function initRest() {
 
   app.post("/puzzle", async (req, res) => {
     const { name, solution, authorName } = req.body;
-    console.log("name, solution, authorName", name, solution, authorName);
+    // console.log("name, solution, authorName", name, solution, authorName);
 
-    // const user = await getUserByName(authorName) || await createUser(authorName);
-    let user;
+    const user =
+      (await getUserByName(authorName)) || (await createUser(authorName));
 
-    // try {
-    //   user = await createUser(authorName);
-    // } catch (e) {
-    //   console.log(e);
-    // }
-
-    user = await createUser(authorName);
-
-    console.log("user,", user);
-
-    const isDuplicate = await getPuzzleByUserIdAndContent(user.id, solution);
-
-    console.log("isDuplicate", isDuplicate);
+    const isDuplicate = await getPuzzleByContentAndAuthorName(
+      solution,
+      user.id
+    );
 
     if (isDuplicate) return res.sendStatus(409);
 

@@ -1,7 +1,10 @@
 const { Sequelize, DataTypes } = require("sequelize");
+const path = require("path");
 
+path.resolve(__dirname, "../dev.sqlite3");
 export const sequelize = new Sequelize({
   dialect: "sqlite",
+  storage: path.resolve(__dirname, "./../db/test.sqlite"),
   // storage: "./../db/test.sqlite",
 });
 

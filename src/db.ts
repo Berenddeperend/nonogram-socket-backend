@@ -1,6 +1,12 @@
-import { PuzzleModel as PuzzleModelType, Puzzle, User } from "./definitions";
+import {
+  PuzzleModel as PuzzleModelType,
+  Puzzle,
+  User,
+  Grid,
+} from "./definitions";
 
 import { Puzzle as PuzzleModel, User as UserModel, sequelize } from "./model";
+import * as cluster from "cluster";
 
 function parseDatabasePuzzle(dbPuzzle: PuzzleModelType): Puzzle {
   if (!dbPuzzle) throw new Error("geen puzzel opgegeven");
@@ -19,6 +25,8 @@ export async function getRandomPuzzle(): Promise<Puzzle> {
   const puzzle = await PuzzleModel.findOne({
     order: sequelize.random(),
   });
+
+  // const puzzle = await PuzzleModel.findAll();
 
   return parseDatabasePuzzle(puzzle);
 }
@@ -53,8 +61,17 @@ export async function getPuzzleByUserIdAndContent(
   }
 }
 
+export async function getPuzzleByContentAndAuthorName(
+  puzzle: Grid,
+  authorId: number
+): Promise<Puzzle> {
+  return await PuzzleModel.findOne({
+    where: { solution: puzzle, authorId: authorId },
+  });
+}
+
 export async function getUserByName(name: string): Promise<User> {
-  return UserModel.findOne({ name });
+  return await UserModel.findOne({ where: { name } });
 }
 
 export async function getPuzzlesByUserName(
@@ -64,7 +81,7 @@ export async function getPuzzlesByUserName(
 
   if (!user) return undefined;
 
-  return PuzzleModel.findAll({
+  return await PuzzleModel.findAll({
     authorId: user.id,
   });
 }
