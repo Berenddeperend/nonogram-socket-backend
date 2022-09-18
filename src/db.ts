@@ -16,11 +16,14 @@ type Position = [number, number];
 
 
 
-import { PrismaClient, Puzzle } from "@prisma/client";
+import { PrismaClient, Puzzle } from "../prisma/generated/prisma-client-js/index";
 
 
 
 const prisma = new PrismaClient();
+
+console.log(prisma)
+
 
 import SampleLevel from "../sample-level-2.json";
 

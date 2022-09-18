@@ -19,13 +19,20 @@ type Position = [number, number];
 
 
 
+
+
 import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import * as faker from 'faker';
 import { isEqual } from 'lodash';
-import { Puzzle } from "@prisma/client";
+import { Puzzle } from "./../prisma/generated/prisma-client-js/index";
+
+
+
+
+
 import {
   getPuzzleById, getRandomPuzzle
 } from './db';

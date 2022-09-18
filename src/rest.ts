@@ -13,9 +13,6 @@ type Grid = string[][];
 type Position = [number, number];
 
 
-
-
-
 import { app } from './index';
 import {
   createPuzzle,
@@ -66,21 +63,43 @@ export function initRest() {
   });
 
   app.post('/puzzle', async(req, res) => {
-    const {name, solution, authorName} = req.body;
 
-    const user = await getUserByName(authorName) || await createUser(authorName);
+
+
+    const {name, solution, authorName} = req.body;
+    console.log('name, solution, authorName', name, solution, authorName)
+    
+    // const user = await getUserByName(authorName) || await createUser(authorName);
+    let user;
+
+    try {
+      user = await createUser(authorName);
+    } catch(e) {
+      console.log(e)
+    }
+
+    user = await createUser(authorName);
+
+    console.log('user,', user)
+
+    
 
     const isDuplicate = await getPuzzleByUserIdAndContent(user.id, solution);
+
+    console.log('isDuplicate', isDuplicate)
+
     if(isDuplicate) return res.sendStatus(409);
 
+    console.log('saving..')
 
     const newPuzzle = await createPuzzle({
       name,
       solution,
-      authorId: user.id,
+      authorId: user!.id,
     })
 
     res.send(newPuzzle)
+    console.log('ye.')
   });
 
   app.get('/ping', async(req, res) => {

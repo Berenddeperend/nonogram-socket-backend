@@ -3,13 +3,16 @@ version: "3.9"
 services:
   nonogram-socket-backend:
     build: .
-    image: nonogram-socket-backend
-    container_name: "nonogram-socket-backend"
+    image: nonogram-backend
+    container_name: "nonogram-backend"
     restart: always
+    platform: "linux/amd64"
     environment:
       BEREND: yep
+      DATABASE_URL: file:./test.db
     ports:
       - "7100:7100"
+      - "7200:7200"
     command: >
       bash -c "npm run run-live"
     networks:
