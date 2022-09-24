@@ -21,6 +21,3 @@ services:
 networks:
   caddy:
     name: 'caddy'
-#  default:
-#    external: true
-#    name: 'caddy'
