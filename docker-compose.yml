@@ -2,6 +2,7 @@ version: "3.9"
 
 services:
   nonogram-socket-backend:
+    build: .
     image: nonogram-backend
     container_name: "nonogram-backend"
     restart: always
