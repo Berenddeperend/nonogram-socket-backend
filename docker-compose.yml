@@ -12,7 +12,7 @@ services:
       - "7100:7100"
       - "7200:7200"
     command: >
-      bash -c "npm run run-live"
+      bash -c "npm run serve"
     networks:
       - 'caddy'
     volumes:
