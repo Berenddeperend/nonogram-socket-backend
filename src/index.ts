@@ -1,5 +1,3 @@
-import { isEqual } from "lodash";
-
 interface Player {
   id: string;
   position: Position;
@@ -43,7 +41,7 @@ const io = new Server(
   // }
 );
 
-const colors = ["yellow", "green", "blue"];
+const colors = ["yellow", "green", "blue", "red"];
 
 let currentPuzzle: Puzzle;
 
@@ -98,11 +96,13 @@ io.on("connection", (socket: any) => {
     io.emit("playersStateUpdated", players);
   }
 
+
+
   function onGridUpdated(newGrid: Grid) {
     grid = newGrid;
     io.emit("gridUpdated", grid);
 
-    const cleared = isEqual(grid, currentPuzzle.solution);
+    const cleared = compareGrids(grid, currentPuzzle.solution);
     console.log("-> solution.solution", currentPuzzle.solution);
     console.log("-> grid", grid);
 
@@ -129,6 +129,11 @@ io.on("connection", (socket: any) => {
     io.emit("gridUpdated", grid);
   }
 });
+
+function compareGrids(gridA: Grid, gridB: Grid) {
+  const stringify = (grid: Grid) => grid.flat().map(cell => cell === 'x' ? '' : cell).join('');
+  return stringify(gridA) === stringify(gridB);
+}
 
 socketServer.listen(7100);
 app.listen(7200);
