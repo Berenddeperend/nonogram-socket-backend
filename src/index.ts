@@ -34,11 +34,6 @@ const socketServer = http.createServer(app);
 
 const io = new Server(
   socketServer
-  //   {
-  //   cors: {
-  //     origin: '*',
-  //   }
-  // }
 );
 
 const colors = ["yellow", "green", "blue", "red"];
@@ -96,15 +91,11 @@ io.on("connection", (socket: any) => {
     io.emit("playersStateUpdated", players);
   }
 
-
-
   function onGridUpdated(newGrid: Grid) {
     grid = newGrid;
     io.emit("gridUpdated", grid);
 
     const cleared = compareGrids(grid, currentPuzzle.solution);
-    console.log("-> solution.solution", currentPuzzle.solution);
-    console.log("-> grid", grid);
 
     if (cleared) {
       console.log("cleared!");
