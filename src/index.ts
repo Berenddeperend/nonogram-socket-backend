@@ -131,7 +131,7 @@ io.on("connection", (socket: any) => {
 });
 
 function compareGrids(gridA: Grid, gridB: Grid) {
-  const stringify = (grid: Grid) => grid.flat().map(cell => cell === 'x' ? '' : cell).join('');
+  const stringify = (grid: Grid) => grid.flat().map(cell => cell === 'x' ? ' ' : cell).join('');
   return stringify(gridA) === stringify(gridB);
 }
 
