@@ -36,7 +36,7 @@ const io = new Server(
   socketServer
 );
 
-const colors = ["yellow", "green", "blue", "red"];
+const colors = [ "hotpink", "seagreen", "indianred", 'teal', 'orange'];
 
 let currentPuzzle: Puzzle;
 
