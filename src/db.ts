@@ -13,6 +13,7 @@ function parseDatabasePuzzle(dbPuzzle: PuzzleModelType): Puzzle {
   return {
     ...dbPuzzle,
     solution: JSON.parse(dbPuzzle.solution),
+    name: dbPuzzle.name
   };
 }
 
