@@ -50,6 +50,39 @@ function createGrid(size: number): Grid {
   return new Array(size).fill("").map(() => new Array(size).fill(" "));
 }
 
+
+function autoXSequence(userSequence: string[], solutionSequence: string[]): string[] {  
+  const hasAllRequiredCells = solutionSequence.every((solutionCell, index) => {
+    return solutionCell === 'd' ? userSequence[index] === solutionCell : true; 
+  });
+
+  const hasNoWrongCells = userSequence.every((userCell, index) => {
+    return userCell === 'd' ? solutionSequence[index] === userCell : true; 
+  })
+
+  const sequenceShouldBeAutoXed = hasAllRequiredCells && hasNoWrongCells;
+
+  return sequenceShouldBeAutoXed ? userSequence.map(cell => cell === 'd' ? 'd' : 'x'): userSequence;
+}
+
+function autoXGrid(grid: Grid, solution: Grid): Grid {
+  const gridWithAutoXedRows = [...grid].map((gridRow, rowIndex) => autoXSequence(gridRow, [...solution][rowIndex]) );
+
+
+  const autoXedColumns = gridWithAutoXedRows[0].map((cell, columnIndex) => {
+    const userColumn = gridWithAutoXedRows.map((row, rowIndex) => row[columnIndex]);
+    const solutionColumn = solution.map((row, rowIndex) => row[columnIndex]);
+
+    return autoXSequence(userColumn, solutionColumn)
+  })
+
+  return grid.map((row, rowIndex) => {
+    return row.map((cell, columnIndex) => {
+      return autoXedColumns[columnIndex][rowIndex]
+    })
+  })
+}
+
 let players: Players = {};
 
 io.on("connection", (socket: any) => {
@@ -79,7 +112,7 @@ io.on("connection", (socket: any) => {
     io.emit("playersStateUpdated", players);
   }
 
-  async function onNewRandomPuzzle() {
+  async function onNewRandomPuzzle() { //doesnt get called yet.
     currentPuzzle = await getRandomPuzzle();
     grid = createGrid(10);
     io.emit("gameCreated", currentPuzzle);
@@ -92,7 +125,8 @@ io.on("connection", (socket: any) => {
   }
 
   function onGridUpdated(newGrid: Grid) {
-    grid = newGrid;
+    grid = autoXGrid(newGrid, currentPuzzle.solution);
+    // grid = newGrid;
     io.emit("gridUpdated", grid);
 
     const cleared = compareGrids(grid, currentPuzzle.solution);
@@ -100,8 +134,8 @@ io.on("connection", (socket: any) => {
     if (cleared) {
       console.log("cleared!");
       setTimeout(async () => {
-        grid = createGrid(10);
         currentPuzzle = await getRandomPuzzle();
+        grid = autoXGrid(createGrid(10), currentPuzzle.solution);
 
         io.emit("gameCreated", currentPuzzle);
         io.emit("gridUpdated", grid);
