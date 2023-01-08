@@ -6,7 +6,6 @@ import {
 } from "./definitions";
 
 import { Puzzle as PuzzleModel, User as UserModel, sequelize } from "./model";
-import * as cluster from "cluster";
 
 function parseDatabasePuzzle(dbPuzzle: PuzzleModelType): Puzzle {
   if (!dbPuzzle) throw new Error("geen puzzel opgegeven");
@@ -30,6 +29,10 @@ export async function getRandomPuzzle(): Promise<Puzzle> {
   // const puzzle = await PuzzleModel.findAll();
 
   return parseDatabasePuzzle(puzzle);
+}
+
+export async function getAllPuzzles(): Promise<Puzzle[]> {
+  return await PuzzleModel.findAll();
 }
 
 export async function createPuzzle(input: {

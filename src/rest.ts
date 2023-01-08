@@ -21,6 +21,7 @@ import {
   getPuzzleByUserIdAndContent,
   getPuzzlesByUserName,
   getUserByName,
+  getAllPuzzles
 } from "./db";
 
 const solve = require("nonogram-solver");
@@ -44,6 +45,13 @@ export function initRest() {
     if (!puzzles) return res.sendStatus(500);
     res.json(puzzles);
   });
+
+  app.get("/puzzles", async(req, res) => {
+    const puzzles = await getAllPuzzles();
+    if (!puzzles) return res.sendStatus(500);
+    res.json(puzzles);
+  })
+
 
   app.post("/validate-puzzle", async (req, res) => {
     const { legendData } = req.body;
