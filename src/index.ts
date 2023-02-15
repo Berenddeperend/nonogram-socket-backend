@@ -70,6 +70,7 @@ io.on("connection", (socket: any) => {
   socket.on("join", onJoin);
   socket.on("suggestClear", onSuggestClear);
   socket.on("suggestNext", onNewRandomPuzzle);
+  socket.on("syncAll", onSyncAll);
 
   function onJoin(nickName: string) {
     console.log("joined");
@@ -89,8 +90,14 @@ io.on("connection", (socket: any) => {
 
   function onCursorUpdated(position: Position) {
     players[socket.id].position = position;
-    socket.broadcast.emit("playersStateUpdated", players)
+
+    socket.broadcast.emit("cursorUpdated", [socket.id, position])
     // io.emit("playersStateUpdated", players);
+  }
+
+  function onSyncAll() {
+    io.emit("playersStateUpdated", players);
+    io.emit("gridUpdated", grid);
   }
 
   // function onGridUpdated(newGrid: Grid) {
@@ -110,13 +117,15 @@ io.on("connection", (socket: any) => {
   //   }
   // }
 
+
+
   function onCellUpdated(args: {position: Position, value: string}) {
     const {position, value} = args
     const [x,y] = position;
     grid[y][x] = value;
     socket.broadcast.emit('cellUpdated', {position, value})
 
-
+ 
     const cleared = compareGrids(grid, currentPuzzle.solution);
 
     if (cleared) {
