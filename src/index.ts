@@ -135,10 +135,9 @@ io.on("connection", async (socket: any) => {
     }
   }
 
-  function onLeave() {
-    delete players[socket.id];
+  function onLeave(socketId: string) {
     createLogItem({action: Action.left, actorId: dbPlayers[socket.id].id})
-    console.log("player left", players);
+    delete players[socketId];
     io.emit("playersStateUpdated", players);
   }
 
