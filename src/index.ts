@@ -123,7 +123,7 @@ io.on("connection", async (socket: any) => {
     const cleared = compareGrids(grid, currentPuzzle.solution);
 
     if (cleared) {      
-      createLogItem({action: Action.joined, actorId: dbPlayers[socket.id].id})
+      createLogItem({action: Action.solved, actorId: dbPlayers[socket.id].id})
 
       setTimeout(async () => {
         currentPuzzle = await getRandomPuzzle();

@@ -77,3 +77,11 @@ Puzzle.User = Puzzle.belongsTo(User, {
   as: "author",
   foreignKey: "authorId",
 });
+
+sequelize.sync()
+  .then(() => {
+    console.log('Database synchronized');
+  })
+  .catch((error:any) => {
+    console.error('Error synchronizing database:', error);
+  });
