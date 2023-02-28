@@ -3,9 +3,10 @@ import {
   Puzzle,
   User,
   Grid,
+  Action
 } from "./definitions";
 
-import { Puzzle as PuzzleModel, User as UserModel, sequelize } from "./model";
+import { Puzzle as PuzzleModel, User as UserModel, Log as LogModel, sequelize } from "./model";
 
 function parseDatabasePuzzle(dbPuzzle: PuzzleModelType): Puzzle {
   if (!dbPuzzle) throw new Error("geen puzzel opgegeven");
@@ -47,6 +48,18 @@ export async function createPuzzle(input: {
   });
 
   return parseDatabasePuzzle(newPuzzle);
+}
+
+export async function createLogItem(input: {
+  actorId: number;
+  action: Action;
+}) {
+  const {actorId, action} = input;
+  const newLog = await LogModel.create({
+    action, actorId
+  })
+
+  return newLog;
 }
 
 export async function getPuzzleByUserIdAndContent(

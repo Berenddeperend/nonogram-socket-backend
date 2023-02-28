@@ -33,3 +33,12 @@ export interface PuzzleModel {
   width?: number;
   height?: number;
 }
+
+export enum Action {
+  created = "created",
+  solved = "solved",
+  joined = "joined",
+  left = "left",
+  placedX = "x",
+  placedBlock = "block"
+}

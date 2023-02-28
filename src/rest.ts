@@ -21,8 +21,11 @@ import {
   getPuzzleByUserIdAndContent,
   getPuzzlesByUserName,
   getUserByName,
-  getAllPuzzles
+  getAllPuzzles,
+  createLogItem
 } from "./db";
+
+import { Action } from "./definitions";
 
 const solve = require("nonogram-solver");
 const Puzzle = require("nonogram-solver/src/Puzzle");
@@ -84,6 +87,8 @@ export function initRest() {
     if (isDuplicate) return res.sendStatus(409);
 
     console.log("saving..");
+
+    createLogItem({action: Action.created, actorId: user.id})
 
     const newPuzzle = await createPuzzle({
       name,

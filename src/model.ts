@@ -4,7 +4,7 @@ const path = require("path");
 path.resolve(__dirname, "../dev.sqlite3");
 export const sequelize = new Sequelize({
   dialect: "sqlite",
-  storage: path.resolve(__dirname, "./../db/test.sqlite"),
+  storage: path.resolve(__dirname, "./../db/test-minimal.sqlite"),
   // storage: "./../db/test.sqlite",
 });
 
@@ -20,6 +20,29 @@ export const User = sequelize.define("User", {
     allowNull: false,
   },
 });
+
+
+
+export const Log = sequelize.define("Log", {
+// wat wil ik?
+// Berend solved puzzle 'puzzlename'
+  id:{
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+
+  action: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  }
+});
+
+Log.Actor = Log.belongsTo(User, {
+  as:"actor",
+  foreignKey: "actorId"
+})
 
 export const Puzzle = sequelize.define("Puzzle", {
   id: {
