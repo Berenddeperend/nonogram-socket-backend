@@ -84,7 +84,7 @@ io.on("connection", async (socket: any) => {
     
     const user = (await getUserByName(nickName)) || (await createUser(nickName));
     dbPlayers[socket.id as string] = user
-    createLogItem({action: Action.joined, actorId: user.id})
+    // createLogItem({action: Action.joined, actorId: user.id})
   }
 
   // async function getDBUserBySocketId(id:string|number) {
@@ -116,14 +116,14 @@ io.on("connection", async (socket: any) => {
     grid[y][x] = value;
     socket.broadcast.emit('cellUpdated', {position, value})
 
-    value === "x"
-     ? createLogItem({action: Action.placedX, actorId: dbPlayers[socket.id].id})
-     : createLogItem({action: Action.placedBlock, actorId: dbPlayers[socket.id].id});
+    // value === "x"
+    //  ? createLogItem({action: Action.placedX, actorId: dbPlayers[socket.id].id})
+    //  : createLogItem({action: Action.placedBlock, actorId: dbPlayers[socket.id].id});
 
     const cleared = compareGrids(grid, currentPuzzle.solution);
 
     if (cleared) {      
-      createLogItem({action: Action.solved, actorId: dbPlayers[socket.id].id})
+      // createLogItem({action: Action.solved, actorId: dbPlayers[socket.id].id})
 
       setTimeout(async () => {
         currentPuzzle = await getRandomPuzzle();
