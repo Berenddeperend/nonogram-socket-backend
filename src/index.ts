@@ -56,17 +56,16 @@ let players: Players = {};
 const dbPlayers: DbPlayers = {};
 
 io.on("connection", async (socket: any) => {
-  console.log("connedcted");
+  console.log("io.on 'connection'");
   
   players[socket.id] = {
-    id: socket.id,
+    id: socket.id, 
     position: [0, 0],
     color: colors[Object.entries(players).length % colors.length],
     name: faker.animal.bird(),
   };
 
   socket.on("disconnect", onLeave);
-  socket.on("leave", onLeave);
   socket.on("cellUpdated", onCellUpdated);
   socket.on("cursorUpdated", onCursorUpdated);
   socket.on("join", onJoin);
@@ -75,7 +74,6 @@ io.on("connection", async (socket: any) => {
   socket.on("syncAll", onSyncAll);
 
   async function onJoin(nickName: string) {
-    console.log("joined");
     players[socket.id].name = nickName;
     socket.emit("playerCreated", { id: socket.id });
     socket.emit("gridUpdated", grid);
@@ -84,9 +82,10 @@ io.on("connection", async (socket: any) => {
     
     const user = (await getUserByName(nickName)) || (await createUser(nickName));
     dbPlayers[socket.id as string] = user
-    // createLogItem({action: Action.joined, actorId: user.id})
+    console.log("socket.on join", dbPlayers);
+    createLogItem({action: Action.joined, actorId: user.id})
   }
-
+ 
   // async function getDBUserBySocketId(id:string|number) {
   //   const nickName = players[id].name;
   //   return (await getUserByName(nickName)) || (await createUser(nickName));
@@ -116,14 +115,14 @@ io.on("connection", async (socket: any) => {
     grid[y][x] = value;
     socket.broadcast.emit('cellUpdated', {position, value})
 
-    // value === "x"
-    //  ? createLogItem({action: Action.placedX, actorId: dbPlayers[socket.id].id})
-    //  : createLogItem({action: Action.placedBlock, actorId: dbPlayers[socket.id].id});
+    value === "x"
+     ? createLogItem({action: Action.placedX, actorId: dbPlayers[socket.id]?.id})
+     : createLogItem({action: Action.placedBlock, actorId: dbPlayers[socket.id]?.id});
 
     const cleared = compareGrids(grid, currentPuzzle.solution);
 
     if (cleared) {      
-      // createLogItem({action: Action.solved, actorId: dbPlayers[socket.id].id})
+      createLogItem({action: Action.solved, actorId: dbPlayers[socket.id]?.id})
 
       setTimeout(async () => {
         currentPuzzle = await getRandomPuzzle();
@@ -135,9 +134,9 @@ io.on("connection", async (socket: any) => {
     }
   }
 
-  function onLeave(socketId: string) {
-    // createLogItem({action: Action.left, actorId: dbPlayers[socket.id].id})
-    delete players[socketId];
+  function onLeave() {
+    createLogItem({action: Action.left, actorId: dbPlayers[socket.id]?.id})
+    delete players[socket.id];
     io.emit("playersStateUpdated", players);
   }
 

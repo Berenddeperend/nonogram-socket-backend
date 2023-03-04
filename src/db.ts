@@ -55,6 +55,10 @@ export async function createLogItem(input: {
   action: Action;
 }) {
   const {actorId, action} = input;
+  if (!actorId) {
+    console.log('hmm this shouldnt happen')
+    return;
+  };
   const newLog = await LogModel.create({
     action, actorId
   })
