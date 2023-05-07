@@ -55,7 +55,7 @@ export async function createLogItem(input: {
   action: Action;
 }) {
   const {actorId, action} = input;
-  if (!actorId) {
+  if (!actorId || !action) {
     console.log('hmm this shouldnt happen')
     return;
   };
