@@ -54,16 +54,16 @@ export async function createLogItem(input: {
   actorId: number;
   action: Action;
 }) {
-  const {actorId, action} = input;
-  if (!actorId || !action) {
-    console.log('hmm this shouldnt happen')
-    return;
-  };
-  const newLog = await LogModel.create({
-    action, actorId
-  })
+  // const {actorId, action} = input;
+  // if (!actorId || !action) {
+  //   console.log('hmm this shouldnt happen')
+  //   return;
+  // };
+  // const newLog = await LogModel.create({
+  //   action, actorId
+  // })
 
-  return newLog;
+  // return newLog;
 }
 
 export async function getPuzzleByUserIdAndContent(
