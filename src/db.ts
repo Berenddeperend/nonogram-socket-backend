@@ -3,17 +3,22 @@ import {
   Puzzle,
   User,
   Grid,
-  Action
+  Action,
 } from "./definitions";
 
-import { Puzzle as PuzzleModel, User as UserModel, Log as LogModel, sequelize } from "./model";
+import {
+  Puzzle as PuzzleModel,
+  User as UserModel,
+  Log as LogModel,
+  sequelize,
+} from "./model";
 
 function parseDatabasePuzzle(dbPuzzle: PuzzleModelType): Puzzle {
   if (!dbPuzzle) throw new Error("geen puzzel opgegeven");
   return {
     ...dbPuzzle,
     solution: JSON.parse(dbPuzzle.solution),
-    name: dbPuzzle.name
+    name: dbPuzzle.name,
   };
 }
 
@@ -62,7 +67,6 @@ export async function createLogItem(input: {
   // const newLog = await LogModel.create({
   //   action, actorId
   // })
-
   // return newLog;
 }
 
@@ -91,7 +95,8 @@ export async function getPuzzleByContentAndAuthorName(
   });
 }
 
-export async function getUserByName(name: string): Promise<User> {
+export async function getUserByName(name: string): Promise<User | undefined> {
+  if (!name) return undefined;
   return await UserModel.findOne({ where: { name } });
 }
 
