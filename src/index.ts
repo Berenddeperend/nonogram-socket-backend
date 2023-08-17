@@ -74,6 +74,7 @@ io.on("connection", async (socket: any) => {
   socket.on("syncAll", onSyncAll);
 
   async function onJoin(nickName: string) {
+    console.log(`socket.on join, nickname:${nickName} wil joinen`, dbPlayers);
     players[socket.id].name = nickName;
     socket.emit("playerCreated", { id: socket.id });
     socket.emit("gridUpdated", grid);
