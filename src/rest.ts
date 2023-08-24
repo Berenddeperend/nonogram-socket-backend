@@ -22,7 +22,7 @@ import {
   getPuzzlesByUserName,
   getUserByName,
   getAllPuzzles,
-  createLogItem
+  createLogItem,
 } from "./db";
 
 import { Action } from "./definitions";
@@ -49,12 +49,11 @@ export function initRest() {
     res.json(puzzles);
   });
 
-  app.get("/puzzles", async(req, res) => {
+  app.get("/puzzles", async (req, res) => {
     const puzzles = await getAllPuzzles();
     if (!puzzles) return res.sendStatus(500);
     res.json(puzzles);
-  })
-
+  });
 
   app.post("/validate-puzzle", async (req, res) => {
     const { legendData } = req.body;
@@ -75,6 +74,12 @@ export function initRest() {
   app.post("/puzzle", async (req, res) => {
     const { name, solution, authorName } = req.body;
     // console.log("name, solution, authorName", name, solution, authorName);
+    console.log("creating new puzzle...");
+
+    if (!name || !solution || !authorName) {
+      console.log("gottem!");
+      return res.sendStatus(400);
+    }
 
     const user =
       (await getUserByName(authorName)) || (await createUser(authorName));
@@ -88,7 +93,7 @@ export function initRest() {
 
     console.log("saving..");
 
-    createLogItem({action: Action.created, actorId: user.id})
+    createLogItem({ action: Action.created, actorId: user.id });
 
     const newPuzzle = await createPuzzle({
       name,
