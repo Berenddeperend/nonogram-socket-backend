@@ -73,7 +73,6 @@ export function initRest() {
 
   app.post("/puzzle", async (req, res) => {
     const { name, solution, authorName } = req.body;
-    // console.log("name, solution, authorName", name, solution, authorName);
     console.log("creating new puzzle...");
 
     if (!name || !solution || !authorName) {

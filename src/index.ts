@@ -18,25 +18,29 @@ import { Server } from "socket.io";
 import cors from "cors";
 import { Puzzle, PuzzleModel, Action } from "./definitions";
 
-import { getPuzzleById, getRandomPuzzle, createLogItem, getUserByName, createUser } from "./db";
+import {
+  getPuzzleById,
+  getRandomPuzzle,
+  createLogItem,
+  getUserByName,
+  createUser,
+} from "./db";
 import bodyParser from "body-parser";
 import { initRest } from "./rest";
 import * as faker from "faker";
 
 export const app = express();
 app.use(cors());
-app.use(bodyParser.json()); 
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 initRest();
 
 const socketServer = http.createServer(app);
 
-const io = new Server(
-  socketServer
-);
+const io = new Server(socketServer);
 
-const colors = [ "hotpink", "seagreen", "indianred", 'teal', 'orange'];
+const colors = ["hotpink", "seagreen", "indianred", "teal", "orange"];
 
 let currentPuzzle: Puzzle;
 
@@ -49,17 +53,17 @@ let grid = createGrid(10);
 function createGrid(size: number): Grid {
   return new Array(size).fill("").map(() => new Array(size).fill(" "));
 }
- 
-type DbPlayers = {[key:string]: any}
+
+type DbPlayers = { [key: string]: any };
 
 let players: Players = {};
 const dbPlayers: DbPlayers = {};
 
 io.on("connection", async (socket: any) => {
   console.log("io.on 'connection'");
-  
+
   players[socket.id] = {
-    id: socket.id, 
+    id: socket.id,
     position: [0, 0],
     color: colors[Object.entries(players).length % colors.length],
     name: faker.animal.bird(),
@@ -75,34 +79,42 @@ io.on("connection", async (socket: any) => {
 
   async function onJoin(nickName: string) {
     console.log(`socket.on join, nickname:${nickName} wil joinen`, dbPlayers);
+    if (!nickName) {
+      socket.emit("error", "no nickname provided");
+      console.log("gottem!");
+      return;
+    }
+
     players[socket.id].name = nickName;
     socket.emit("playerCreated", { id: socket.id });
     socket.emit("gridUpdated", grid);
     socket.emit("gameCreated", currentPuzzle);
     io.emit("playersStateUpdated", players);
-    
-    const user = (await getUserByName(nickName)) || (await createUser(nickName));
-    dbPlayers[socket.id as string] = user
+
+    const user =
+      (await getUserByName(nickName)) || (await createUser(nickName));
+    dbPlayers[socket.id as string] = user;
     console.log("socket.on join", dbPlayers);
-    createLogItem({action: Action.joined, actorId: user.id})
+    createLogItem({ action: Action.joined, actorId: user.id });
   }
- 
+
   // async function getDBUserBySocketId(id:string|number) {
   //   const nickName = players[id].name;
   //   return (await getUserByName(nickName)) || (await createUser(nickName));
   // }
 
-  async function onNewRandomPuzzle() { //doesnt get called yet.
+  async function onNewRandomPuzzle() {
+    //doesnt get called yet.
     currentPuzzle = await getRandomPuzzle();
     grid = createGrid(10);
     io.emit("gameCreated", currentPuzzle);
-    io.emit("gridUpdated", grid);  
+    io.emit("gridUpdated", grid);
   }
 
   function onCursorUpdated(position: Position) {
     players[socket.id].position = position;
 
-    socket.broadcast.emit("cursorUpdated", [socket.id, position])
+    socket.broadcast.emit("cursorUpdated", [socket.id, position]);
   }
 
   function onSyncAll() {
@@ -110,20 +122,29 @@ io.on("connection", async (socket: any) => {
     io.emit("gridUpdated", grid);
   }
 
-  function onCellUpdated(args: {position: Position, value: string}) {
-    const {position, value} = args
-    const [x,y] = position;
+  function onCellUpdated(args: { position: Position; value: string }) {
+    const { position, value } = args;
+    const [x, y] = position;
     grid[y][x] = value;
-    socket.broadcast.emit('cellUpdated', {position, value})
+    socket.broadcast.emit("cellUpdated", { position, value });
 
     value === "x"
-     ? createLogItem({action: Action.placedX, actorId: dbPlayers[socket.id]?.id})
-     : createLogItem({action: Action.placedBlock, actorId: dbPlayers[socket.id]?.id});
+      ? createLogItem({
+          action: Action.placedX,
+          actorId: dbPlayers[socket.id]?.id,
+        })
+      : createLogItem({
+          action: Action.placedBlock,
+          actorId: dbPlayers[socket.id]?.id,
+        });
 
     const cleared = compareGrids(grid, currentPuzzle.solution);
 
-    if (cleared) {      
-      createLogItem({action: Action.solved, actorId: dbPlayers[socket.id]?.id})
+    if (cleared) {
+      createLogItem({
+        action: Action.solved,
+        actorId: dbPlayers[socket.id]?.id,
+      });
 
       setTimeout(async () => {
         currentPuzzle = await getRandomPuzzle();
@@ -136,7 +157,7 @@ io.on("connection", async (socket: any) => {
   }
 
   function onLeave() {
-    createLogItem({action: Action.left, actorId: dbPlayers[socket.id]?.id})
+    createLogItem({ action: Action.left, actorId: dbPlayers[socket.id]?.id });
     delete players[socket.id];
     io.emit("playersStateUpdated", players);
   }
@@ -148,7 +169,11 @@ io.on("connection", async (socket: any) => {
 });
 
 function compareGrids(gridA: Grid, gridB: Grid) {
-  const stringify = (grid: Grid) => grid.flat().map(cell => cell === 'x' ? ' ' : cell).join('');
+  const stringify = (grid: Grid) =>
+    grid
+      .flat()
+      .map((cell) => (cell === "x" ? " " : cell))
+      .join("");
   return stringify(gridA) === stringify(gridB);
 }
 
