@@ -17,7 +17,7 @@ import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import { Puzzle, PuzzleModel, Action } from "./definitions";
-import fetch from "node-fetch";
+const fetch = require("node-fetch");
 
 import {
   getPuzzleById,

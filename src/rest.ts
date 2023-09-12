@@ -1,5 +1,3 @@
-import fetch from "node-fetch";
-
 interface Player {
   id: string;
   position: Position;
@@ -29,6 +27,7 @@ import {
 
 import { Action } from "./definitions";
 
+const fetch = require("node-fetch");
 const solve = require("nonogram-solver");
 const Puzzle = require("nonogram-solver/src/Puzzle");
 const Strategy = require("nonogram-solver/src/Strategy");

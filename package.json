@@ -18,7 +18,7 @@
     "express": "^4.17.2",
     "faker": "^5.5.3",
     "lodash": "^4.17.21",
-    "node-fetch": "^3.3.2",
+    "node-fetch": "^2.7.0",
     "nonogram-solver": "^2.0.0",
     "prettier": "^2.7.1",
     "sequelize": "^6.23.0",
