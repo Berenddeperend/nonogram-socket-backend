@@ -1,3 +1,5 @@
+import fetch from "node-fetch";
+
 interface Player {
   id: string;
   position: Position;
@@ -93,6 +95,11 @@ export function initRest() {
     console.log("saving..");
 
     createLogItem({ action: Action.created, actorId: user.id });
+
+    fetch("http://ntfy.sh/nono-puzzle-created", {
+      method: "POST",
+      body: "new puzzle created! " + name + " by " + authorName,
+    });
 
     const newPuzzle = await createPuzzle({
       name,

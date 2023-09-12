@@ -17,6 +17,7 @@ import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import { Puzzle, PuzzleModel, Action } from "./definitions";
+import fetch from "node-fetch";
 
 import {
   getPuzzleById,
@@ -96,6 +97,11 @@ io.on("connection", async (socket: any) => {
     dbPlayers[socket.id as string] = user;
     console.log("socket.on join", dbPlayers);
     createLogItem({ action: Action.joined, actorId: user.id });
+
+    fetch("http://ntfy.sh/nono-guy-joined", {
+      method: "POST",
+      body: nickName,
+    });
   }
 
   // async function getDBUserBySocketId(id:string|number) {
