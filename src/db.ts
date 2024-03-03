@@ -13,12 +13,15 @@ import {
   sequelize,
 } from "./model";
 
-function parseDatabasePuzzle(dbPuzzle: PuzzleModelType): Puzzle {
+function parseDatabasePuzzle(dbPuzzle: {
+  dataValues: PuzzleModelType;
+}): Puzzle {
   if (!dbPuzzle) throw new Error("geen puzzel opgegeven");
+
   return {
-    ...dbPuzzle,
-    solution: JSON.parse(dbPuzzle.solution),
-    name: dbPuzzle.name,
+    ...dbPuzzle.dataValues,
+    solution: JSON.parse(dbPuzzle.dataValues.solution),
+    name: dbPuzzle.dataValues.name,
   };
 }
 
@@ -27,10 +30,13 @@ export async function getPuzzleById(puzzleId: number): Promise<Puzzle> {
   return parseDatabasePuzzle(puzzle);
 }
 
-export async function getRandomPuzzle(): Promise<Puzzle> {
+export async function getRandomPuzzle(size?: number): Promise<Puzzle | null> {
   const puzzle = await PuzzleModel.findOne({
     order: sequelize.random(),
+    where: size ? { width: size, height: size } : {},
   });
+
+  if (!puzzle) return null;
 
   // const puzzle = await PuzzleModel.findAll();
 
@@ -45,11 +51,15 @@ export async function createPuzzle(input: {
   name: string;
   solution: string;
   authorId: number;
+  width: number;
+  height: number;
 }): Promise<Puzzle> {
   const newPuzzle = await PuzzleModel.create({
     name: input.name,
     solution: input.solution,
     authorId: input.authorId,
+    width: input.width,
+    height: input.height,
   });
 
   return parseDatabasePuzzle(newPuzzle);

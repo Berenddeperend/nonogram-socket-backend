@@ -21,8 +21,8 @@ export interface Puzzle {
   id: number;
   name: string;
   solution: Grid;
-  width?: number;
-  height?: number;
+  width: number;
+  height: number;
 }
 
 export interface PuzzleModel {
@@ -30,8 +30,8 @@ export interface PuzzleModel {
   id: number;
   name: string;
   solution: string;
-  width?: number;
-  height?: number;
+  width: number;
+  height: number;
 }
 
 export enum Action {
@@ -40,5 +40,5 @@ export enum Action {
   joined = "joined",
   left = "left",
   placedX = "x",
-  placedBlock = "block"
+  placedBlock = "block",
 }

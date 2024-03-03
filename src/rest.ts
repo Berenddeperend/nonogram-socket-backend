@@ -36,13 +36,11 @@ const bruteForceSolver = require("nonogram-solver/src/solvers/bruteForceSolver")
 
 export function initRest() {
   app.get("/puzzle/:id", async (req, res) => {
-    console.log(req);
     const puzzle = await getPuzzleById(Number(req.params.id));
     res.json(puzzle);
   });
 
   app.get("/users/:name/puzzles", async (req, res) => {
-    console.log("getting puzzls");
     const authorName = req.params.name;
     const puzzles = await getPuzzlesByUserName(authorName);
 
@@ -58,6 +56,7 @@ export function initRest() {
 
   app.post("/validate-puzzle", async (req, res) => {
     const { legendData } = req.body;
+
     let puzzle = new Puzzle(legendData);
     let strategy = new Strategy([pushSolver.solve]);
     strategy.solve(puzzle, false);
@@ -67,17 +66,19 @@ export function initRest() {
       status = puzzle.isSolved ? 1 : -1;
     }
 
-    console.log(status, puzzle.toJSON());
+    const puzzleEmpty = legendData.rows.every((row: number[]) => row[0] === 0);
+
+    if (puzzleEmpty) {
+      status = 0;
+    }
 
     res.json(status);
   });
 
   app.post("/puzzle", async (req, res) => {
-    const { name, solution, authorName } = req.body;
-    console.log("creating new puzzle...");
+    const { name, solution, authorName, width, height } = req.body;
 
     if (!name || !solution || !authorName) {
-      console.log("gottem!");
       return res.sendStatus(400);
     }
 
@@ -91,8 +92,6 @@ export function initRest() {
 
     if (isDuplicate) return res.sendStatus(409);
 
-    console.log("saving..");
-
     createLogItem({ action: Action.created, actorId: user.id });
 
     fetch("http://ntfy.sh/nono-puzzle-created", {
@@ -104,10 +103,11 @@ export function initRest() {
       name,
       solution,
       authorId: user!.id,
+      width,
+      height,
     });
 
     res.send(newPuzzle);
-    console.log("ye.");
   });
 
   app.get("/ping", async (req, res) => {
