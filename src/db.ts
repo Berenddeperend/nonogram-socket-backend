@@ -44,7 +44,7 @@ export async function getRandomPuzzle(size?: number): Promise<Puzzle | null> {
 }
 
 export async function getAllPuzzles(): Promise<Puzzle[]> {
-  return await PuzzleModel.findAll();
+  return await PuzzleModel.findAll({ include: "author" });
 }
 
 export async function createPuzzle(input: {
@@ -126,4 +126,23 @@ export async function createUser(name: string): Promise<User> {
   return await UserModel.create({
     name,
   });
+}
+
+export async function setSanctioned(puzzleId: number, value: boolean) {
+  const puzzle = await PuzzleModel.findOne({ where: { id: puzzleId } });
+  if (!puzzle) return;
+
+  puzzle.sanctioned = value;
+  await puzzle.save();
+}
+
+export async function setPuzzleVisibleInOverview(
+  puzzleId: number,
+  value: boolean
+) {
+  const puzzle = await PuzzleModel.findOne({ where: { id: puzzleId } });
+  if (!puzzle) return;
+
+  puzzle.showInOverview = value;
+  await puzzle.save();
 }

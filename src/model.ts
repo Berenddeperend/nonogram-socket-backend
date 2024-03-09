@@ -68,9 +68,18 @@ export const Puzzle = sequelize.define("Puzzle", {
     allowNull: false,
     default: 10,
   },
+  showInOverview: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+  },
+  sanctioned: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+  },
 });
 
 User.Puzzles = User.hasMany(Puzzle, {
+  as: "puzzles",
   foreignKey: "authorId",
 });
 Puzzle.User = Puzzle.belongsTo(User, {

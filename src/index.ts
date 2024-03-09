@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 interface Player {
   id: string;
   position: Position;

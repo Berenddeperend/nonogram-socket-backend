@@ -23,6 +23,8 @@ import {
   getUserByName,
   getAllPuzzles,
   createLogItem,
+  setSanctioned,
+  setPuzzleVisibleInOverview,
 } from "./db";
 
 import { Action } from "./definitions";
@@ -96,7 +98,7 @@ export function initRest() {
 
     fetch("http://ntfy.sh/nono-puzzle-created", {
       method: "POST",
-      body: "new puzzle created! " + name + " by " + authorName,
+      body: "new puzzle created! '" + name + "' by " + authorName,
     });
 
     const newPuzzle = await createPuzzle({
@@ -108,6 +110,24 @@ export function initRest() {
     });
 
     res.send(newPuzzle);
+  });
+
+  app.put("/admin/sanction-puzzle", async (req, res) => {
+    if (req.header("nono-admin-password") !== process.env.ADMIN_PASSWORD) {
+      return res.sendStatus(401);
+    }
+
+    await setSanctioned(req.body.puzzleId, req.body.value);
+    res.send();
+  });
+
+  app.put("/admin/puzzle-visible-in-overview", async (req, res) => {
+    if (req.header("nono-admin-password") !== process.env.ADMIN_PASSWORD) {
+      return res.sendStatus(401);
+    }
+
+    await setPuzzleVisibleInOverview(req.body.puzzleId, req.body.value);
+    res.send();
   });
 
   app.get("/ping", async (req, res) => {
