@@ -60,6 +60,8 @@ export async function createPuzzle(input: {
     authorId: input.authorId,
     width: input.width,
     height: input.height,
+    showInOverview: true,
+    sanctioned: false,
   });
 
   return parseDatabasePuzzle(newPuzzle);
