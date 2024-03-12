@@ -39,6 +39,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 initRest();
 
+const recentPlayedPuzzleLimit = 10;
+export const recentlyPlayedPuzzlesIds: number[] = [];
+
 const socketServer = http.createServer(app);
 
 const io = new Server(socketServer);
@@ -53,6 +56,7 @@ getRandomPuzzle().then((puzzle: Puzzle | null) => {
   if (!puzzle) {
     return;
   }
+  recentlyPlayedPuzzlesIds.push(puzzle.id);
   currentPuzzle = puzzle;
   grid = createGrid(currentPuzzle.solution.length);
 });
@@ -116,6 +120,11 @@ io.on("connection", async (socket: any) => {
     );
     if (!newRandomPuzzle) return;
 
+    recentlyPlayedPuzzlesIds.push(newRandomPuzzle.id);
+    if (recentlyPlayedPuzzlesIds.length > recentPlayedPuzzleLimit) {
+      recentlyPlayedPuzzlesIds.shift();
+    }
+
     currentPuzzle = newRandomPuzzle;
     grid = createGrid(currentPuzzle.width);
     io.emit("gameCreated", currentPuzzle);
@@ -165,6 +174,11 @@ io.on("connection", async (socket: any) => {
         if (!newRandomPuzzle) return;
 
         currentPuzzle = newRandomPuzzle;
+        recentlyPlayedPuzzlesIds.push(currentPuzzle.id);
+
+        if (recentlyPlayedPuzzlesIds.length > recentPlayedPuzzleLimit) {
+          recentlyPlayedPuzzlesIds.shift();
+        }
 
         grid = createGrid(currentPuzzle.solution.length);
 

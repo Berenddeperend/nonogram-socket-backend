@@ -6,12 +6,15 @@ import {
   Action,
 } from "./definitions";
 
+import { Op } from "sequelize";
+
 import {
   Puzzle as PuzzleModel,
   User as UserModel,
   Log as LogModel,
   sequelize,
 } from "./model";
+import { recentlyPlayedPuzzlesIds } from "./index";
 
 function parseDatabasePuzzle(dbPuzzle: {
   dataValues: PuzzleModelType;
@@ -31,14 +34,24 @@ export async function getPuzzleById(puzzleId: number): Promise<Puzzle> {
 }
 
 export async function getRandomPuzzle(size?: number): Promise<Puzzle | null> {
+  const excludeRecentPuzzles = {
+    id: {
+      [Op.notIn]: recentlyPlayedPuzzlesIds,
+    },
+  };
+
   const puzzle = await PuzzleModel.findOne({
     order: sequelize.random(),
-    where: size ? { width: size, height: size } : {},
+    where: size
+      ? {
+          width: size,
+          height: size,
+          ...excludeRecentPuzzles,
+        }
+      : { ...excludeRecentPuzzles },
   });
 
   if (!puzzle) return null;
-
-  // const puzzle = await PuzzleModel.findAll();
 
   return parseDatabasePuzzle(puzzle);
 }
