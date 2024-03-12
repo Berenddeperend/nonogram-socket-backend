@@ -6,19 +6,25 @@ import {
   Action,
 } from "./definitions";
 
+import { Op } from "sequelize";
+
 import {
   Puzzle as PuzzleModel,
   User as UserModel,
   Log as LogModel,
   sequelize,
 } from "./model";
+import { recentlyPlayedPuzzlesIds } from "./index";
 
-function parseDatabasePuzzle(dbPuzzle: PuzzleModelType): Puzzle {
+function parseDatabasePuzzle(dbPuzzle: {
+  dataValues: PuzzleModelType;
+}): Puzzle {
   if (!dbPuzzle) throw new Error("geen puzzel opgegeven");
+
   return {
-    ...dbPuzzle,
-    solution: JSON.parse(dbPuzzle.solution),
-    name: dbPuzzle.name,
+    ...dbPuzzle.dataValues,
+    solution: JSON.parse(dbPuzzle.dataValues.solution),
+    name: dbPuzzle.dataValues.name,
   };
 }
 
@@ -27,29 +33,48 @@ export async function getPuzzleById(puzzleId: number): Promise<Puzzle> {
   return parseDatabasePuzzle(puzzle);
 }
 
-export async function getRandomPuzzle(): Promise<Puzzle> {
+export async function getRandomPuzzle(size?: number): Promise<Puzzle | null> {
+  const excludeRecentPuzzles = {
+    id: {
+      [Op.notIn]: recentlyPlayedPuzzlesIds,
+    },
+  };
+
   const puzzle = await PuzzleModel.findOne({
     order: sequelize.random(),
+    where: size
+      ? {
+          width: size,
+          height: size,
+          ...excludeRecentPuzzles,
+        }
+      : { ...excludeRecentPuzzles },
   });
 
-  // const puzzle = await PuzzleModel.findAll();
+  if (!puzzle) return null;
 
   return parseDatabasePuzzle(puzzle);
 }
 
 export async function getAllPuzzles(): Promise<Puzzle[]> {
-  return await PuzzleModel.findAll();
+  return await PuzzleModel.findAll({ include: "author" });
 }
 
 export async function createPuzzle(input: {
   name: string;
   solution: string;
   authorId: number;
+  width: number;
+  height: number;
 }): Promise<Puzzle> {
   const newPuzzle = await PuzzleModel.create({
     name: input.name,
     solution: input.solution,
     authorId: input.authorId,
+    width: input.width,
+    height: input.height,
+    showInOverview: true,
+    sanctioned: false,
   });
 
   return parseDatabasePuzzle(newPuzzle);
@@ -116,4 +141,23 @@ export async function createUser(name: string): Promise<User> {
   return await UserModel.create({
     name,
   });
+}
+
+export async function setSanctioned(puzzleId: number, value: boolean) {
+  const puzzle = await PuzzleModel.findOne({ where: { id: puzzleId } });
+  if (!puzzle) return;
+
+  puzzle.sanctioned = value;
+  await puzzle.save();
+}
+
+export async function setPuzzleVisibleInOverview(
+  puzzleId: number,
+  value: boolean
+) {
+  const puzzle = await PuzzleModel.findOne({ where: { id: puzzleId } });
+  if (!puzzle) return;
+
+  puzzle.showInOverview = value;
+  await puzzle.save();
 }

@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 interface Player {
   id: string;
   position: Position;
@@ -37,6 +39,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 initRest();
 
+const recentPlayedPuzzleLimit = 10;
+export const recentlyPlayedPuzzlesIds: number[] = [];
+
 const socketServer = http.createServer(app);
 
 const io = new Server(socketServer);
@@ -45,11 +50,16 @@ const colors = ["hotpink", "seagreen", "indianred", "teal", "orange"];
 
 let currentPuzzle: Puzzle;
 
-getRandomPuzzle().then((puzzle) => {
-  currentPuzzle = puzzle;
-});
+let grid: Grid;
 
-let grid = createGrid(10);
+getRandomPuzzle().then((puzzle: Puzzle | null) => {
+  if (!puzzle) {
+    return;
+  }
+  recentlyPlayedPuzzlesIds.push(puzzle.id);
+  currentPuzzle = puzzle;
+  grid = createGrid(currentPuzzle.solution.length);
+});
 
 function createGrid(size: number): Grid {
   return new Array(size).fill("").map(() => new Array(size).fill(" "));
@@ -61,8 +71,6 @@ let players: Players = {};
 const dbPlayers: DbPlayers = {};
 
 io.on("connection", async (socket: any) => {
-  console.log("io.on 'connection'");
-
   players[socket.id] = {
     id: socket.id,
     position: [0, 0],
@@ -79,10 +87,8 @@ io.on("connection", async (socket: any) => {
   socket.on("syncAll", onSyncAll);
 
   async function onJoin(nickName: string) {
-    console.log(`socket.on join, nickname:${nickName} wil joinen`, dbPlayers);
     if (!nickName) {
       socket.emit("error", "no nickname provided");
-      console.log("gottem!");
       return;
     }
 
@@ -95,13 +101,12 @@ io.on("connection", async (socket: any) => {
     const user =
       (await getUserByName(nickName)) || (await createUser(nickName));
     dbPlayers[socket.id as string] = user;
-    console.log("socket.on join", dbPlayers);
     createLogItem({ action: Action.joined, actorId: user.id });
 
-    fetch("http://ntfy.sh/nono-guy-joined", {
-      method: "POST",
-      body: nickName,
-    });
+    // fetch("http://ntfy.sh/nono-guy-joined", {
+    //   method: "POST",
+    //   body: nickName,
+    // });
   }
 
   // async function getDBUserBySocketId(id:string|number) {
@@ -110,9 +115,18 @@ io.on("connection", async (socket: any) => {
   // }
 
   async function onNewRandomPuzzle() {
-    //doesnt get called yet.
-    currentPuzzle = await getRandomPuzzle();
-    grid = createGrid(10);
+    const newRandomPuzzle = await getRandomPuzzle(
+      currentPuzzle.width === 10 ? 15 : 10
+    );
+    if (!newRandomPuzzle) return;
+
+    recentlyPlayedPuzzlesIds.push(newRandomPuzzle.id);
+    if (recentlyPlayedPuzzlesIds.length > recentPlayedPuzzleLimit) {
+      recentlyPlayedPuzzlesIds.shift();
+    }
+
+    currentPuzzle = newRandomPuzzle;
+    grid = createGrid(currentPuzzle.width);
     io.emit("gameCreated", currentPuzzle);
     io.emit("gridUpdated", grid);
   }
@@ -153,8 +167,20 @@ io.on("connection", async (socket: any) => {
       });
 
       setTimeout(async () => {
-        currentPuzzle = await getRandomPuzzle();
-        grid = createGrid(10);
+        const newRandomPuzzle = await getRandomPuzzle(
+          currentPuzzle.width === 10 ? 15 : 10
+        );
+
+        if (!newRandomPuzzle) return;
+
+        currentPuzzle = newRandomPuzzle;
+        recentlyPlayedPuzzlesIds.push(currentPuzzle.id);
+
+        if (recentlyPlayedPuzzlesIds.length > recentPlayedPuzzleLimit) {
+          recentlyPlayedPuzzlesIds.shift();
+        }
+
+        grid = createGrid(currentPuzzle.solution.length);
 
         io.emit("gameCreated", currentPuzzle);
         io.emit("gridUpdated", grid);

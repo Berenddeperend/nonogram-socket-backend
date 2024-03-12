@@ -6,9 +6,7 @@ services:
     image: nonogram-backend
     container_name: "nonogram-backend"
     restart: always
-    environment:
-      BEREND: yep
-      DATABASE_URL: file:./test.db
+    env_file: ".env"
     ports:
       - "7100:7100"
       - "7200:7200"

@@ -4,7 +4,7 @@ const path = require("path");
 path.resolve(__dirname, "../dev.sqlite3");
 export const sequelize = new Sequelize({
   dialect: "sqlite",
-  storage: path.resolve(__dirname, "./../db/test.sqlite"),
+  storage: path.resolve(__dirname, "./../db/nono-prod.sqlite"),
   // storage: "./../db/test.sqlite",
 });
 
@@ -21,12 +21,10 @@ export const User = sequelize.define("User", {
   },
 });
 
-
-
 export const Log = sequelize.define("Log", {
-// wat wil ik?
-// Berend solved puzzle 'puzzlename'
-  id:{
+  // wat wil ik?
+  // Berend solved puzzle 'puzzlename'
+  id: {
     type: DataTypes.INTEGER,
     allowNull: false,
     primaryKey: true,
@@ -35,14 +33,14 @@ export const Log = sequelize.define("Log", {
 
   action: {
     type: DataTypes.TEXT,
-    allowNull: false
-  }
+    allowNull: false,
+  },
 });
 
 Log.Actor = Log.belongsTo(User, {
-  as:"actor",
-  foreignKey: "actorId"
-})
+  as: "actor",
+  foreignKey: "actorId",
+});
 
 export const Puzzle = sequelize.define("Puzzle", {
   id: {
@@ -62,15 +60,26 @@ export const Puzzle = sequelize.define("Puzzle", {
   },
   width: {
     type: DataTypes.INTEGER,
+    allowNull: false,
     default: 10,
   },
   height: {
     type: DataTypes.INTEGER,
+    allowNull: false,
     default: 10,
+  },
+  showInOverview: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+  },
+  sanctioned: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
   },
 });
 
 User.Puzzles = User.hasMany(Puzzle, {
+  as: "puzzles",
   foreignKey: "authorId",
 });
 Puzzle.User = Puzzle.belongsTo(User, {
@@ -78,10 +87,11 @@ Puzzle.User = Puzzle.belongsTo(User, {
   foreignKey: "authorId",
 });
 
-sequelize.sync()
+sequelize
+  .sync()
   .then(() => {
-    console.log('Database synchronized');
+    console.log("Database synchronized");
   })
-  .catch((error:any) => {
-    console.error('Error synchronizing database:', error);
+  .catch((error: any) => {
+    console.error("Error synchronizing database:", error);
   });
