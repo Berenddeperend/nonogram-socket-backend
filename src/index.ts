@@ -103,10 +103,10 @@ io.on("connection", async (socket: any) => {
     dbPlayers[socket.id as string] = user;
     createLogItem({ action: Action.joined, actorId: user.id });
 
-    // fetch("http://ntfy.sh/nono-guy-joined", {
-    //   method: "POST",
-    //   body: nickName,
-    // });
+    fetch("http://ntfy.sh/nono-guy-joined", {
+      method: "POST",
+      body: nickName,
+    });
   }
 
   // async function getDBUserBySocketId(id:string|number) {
