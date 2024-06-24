@@ -7,7 +7,6 @@ import {
 } from "./definitions";
 
 import { Op } from "sequelize";
-
 import {
   Puzzle as PuzzleModel,
   User as UserModel,
@@ -47,8 +46,9 @@ export async function getRandomPuzzle(size?: number): Promise<Puzzle | null> {
           width: size,
           height: size,
           ...excludeRecentPuzzles,
+          sanctioned: true,
         }
-      : { ...excludeRecentPuzzles },
+      : { ...excludeRecentPuzzles, sanctioned: true },
   });
 
   if (!puzzle) return null;
